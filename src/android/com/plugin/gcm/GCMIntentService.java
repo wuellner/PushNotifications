@@ -1,7 +1,6 @@
 package com.plugin.gcm;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.gcm.GCMBaseIntentService;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -13,41 +12,25 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.android.gcm.GCMBaseIntentService;
-
 @SuppressLint("NewApi")
 public class GCMIntentService extends GCMBaseIntentService {
 
-	private static final String TAG = "GCMIntentService";
-	
-	public GCMIntentService() {
+	public static final int NOTIFICATION_ID = 237;
+
+    private static String TAG = "PushPlugin-GCMIntentService";
+
+    public static final String MESSAGE = "message";
+
+    public static final String COLDSTART = "coldstart";
+
+    public GCMIntentService() {
 		super("GCMIntentService");
 	}
 
 	@Override
 	public void onRegistered(Context context, String regId) {
-
 		Log.v(TAG, "onRegistered: "+ regId);
-
-		JSONObject json;
-
-		try
-		{
-			json = new JSONObject().put("event", "registered");
-			json.put("regid", regId);
-
-			Log.v(TAG, "onRegistered: " + json.toString());
-
-			// Send this JSON data to the JavaScript application above EVENT should be set to the msg type
-			// In this case this is the registration ID
-			PushPlugin.sendJavascript( json );
-
-		}
-		catch( JSONException e)
-		{
-			// No message to the user is sent, JSON failed
-			Log.e(TAG, "onRegistered: JSON exception");
-		}
+        NotificationService.getInstance(context).onRegistered(regId);
 	}
 
 	@Override
@@ -57,26 +40,22 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	@Override
 	protected void onMessage(Context context, Intent intent) {
-		Log.d(TAG, "onMessage - context: " + context);
+		boolean isPushPluginActive = NotificationService.getInstance(context).isActive();
 
-		// Extract the payload from the message
+        Log.d(TAG, "onMessage - isPushPluginActive: " + isPushPluginActive);
+
 		Bundle extras = intent.getExtras();
-		if (extras != null)
-		{
-			// if we are in the foreground, just surface the payload, else post it to the statusbar
-            if (PushPlugin.isInForeground()) {
-				extras.putBoolean("foreground", true);
-                PushPlugin.sendExtras(extras);
-			}
-			else {
-				extras.putBoolean("foreground", false);
+		if (extras != null) {
 
-                // Send a notification if there is a message
-                if (extras.getString("message") != null && extras.getString("message").length() != 0) {
-                    createNotification(context, extras);
-                }
+            if (!isPushPluginActive) {
+                extras.putBoolean(COLDSTART, true);
             }
-        }
+            NotificationService.getInstance(context).onMessage(extras);
+
+			if (extras.getString(MESSAGE) != null && extras.getString(MESSAGE).length() != 0) {
+				createNotification(context, extras);
+			}
+		}
 	}
 
 	public void createNotification(Context context, Bundle extras)
@@ -89,15 +68,17 @@ public class GCMIntentService extends GCMBaseIntentService {
 		notificationIntent.putExtra("pushBundle", extras);
 
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		
+
 		int defaults = Notification.DEFAULT_ALL;
 
 		if (extras.getString("defaults") != null) {
 			try {
 				defaults = Integer.parseInt(extras.getString("defaults"));
-			} catch (NumberFormatException e) {}
+			}
+			catch (NumberFormatException e) {}
 		}
-		
+
+
 		NotificationCompat.Builder mBuilder =
 			new NotificationCompat.Builder(context)
 				.setDefaults(defaults)
@@ -119,9 +100,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 		if (msgcnt != null) {
 			mBuilder.setNumber(Integer.parseInt(msgcnt));
 		}
-		
-		int notId = 0;
-		
+
+		int notId = NOTIFICATION_ID;
+
 		try {
 			notId = Integer.parseInt(extras.getString("notId"));
 		}
@@ -131,20 +112,27 @@ public class GCMIntentService extends GCMBaseIntentService {
 		catch(Exception e) {
 			Log.e(TAG, "Number format exception - Error parsing Notification ID" + e.getMessage());
 		}
-		
+
 		mNotificationManager.notify((String) appName, notId, mBuilder.build());
+		
 	}
-	
+
+	public static void cancelNotification(Context context)
+	{
+		NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.cancel((String)getAppName(context), NOTIFICATION_ID);
+	}
+
 	private static String getAppName(Context context)
 	{
-		CharSequence appName = 
+		CharSequence appName =
 				context
 					.getPackageManager()
 					.getApplicationLabel(context.getApplicationInfo());
-		
+
 		return (String)appName;
 	}
-	
+
 	@Override
 	public void onError(Context context, String errorId) {
 		Log.e(TAG, "onError - errorId: " + errorId);
