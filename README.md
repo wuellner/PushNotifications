@@ -4,7 +4,7 @@
 
 ## DESCRIPTION
 
-This plugin is for use with [AppGyver SteroidsJS](http://www.appgyver.com), and allows your application to receive push notifications on both Android and iOS devices. The Android implementation uses [Google's GCM (Google Cloud Messaging) service](http://developer.android.com/guide/google/gcm/index.html), whereas the iOS version is based on [Apple APNS Notifications](http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html)
+This plugin is for use with [AppGyver Supersonic](http://www.appgyver.com), and allows your application to receive push notifications on both Android and iOS devices. The Android implementation uses [Google's GCM (Google Cloud Messaging) service](http://developer.android.com/guide/google/gcm/index.html), whereas the iOS version is based on [Apple APNS Notifications](http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html)
 
 **Important** - Push notifications are intended for real devices. The registration process will fail on the iOS simulator. Notifications can be made to work on the Android Emulator. However, doing so requires installation of some helper libraries, as outlined [here,](http://www.androidhive.info/2012/10/android-push-notifications-using-google-cloud-messaging-gcm-php-and-mysql/) under the section titled "Installing helper libraries and setting up the Emulator".
 
@@ -34,32 +34,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ## Automatic Installation
-This plugin is based on [plugman](https://github.com/apache/cordova-plugman). to install it to your app,
-simply execute plugman as follows;
 
-```sh
-plugman install --platform [PLATFORM] --project [TARGET-PATH] --plugin [PLUGIN-PATH]
-
-where
-[PLATFORM] = ios or android
-[TARGET-PATH] = path to folder containing your phonegap project
-[PLUGIN-PATH] = path to folder containing this plugin
-```
-
-For additional info, take a look at the [Plugman Documentation](https://github.com/apache/cordova-plugman/blob/master/README.md)
+This plugin is compatible with the AppGyver Build Service. Read more in the [Plugins guide](http://docs.appgyver.com/tooling/build-service/plugins/).
 
 ## Plugin API
 
-First create the plugin instance variable.
+First, create the plugin instance variable:
 
 ```js
 var pushNotification;
 ```
 
-When deviceReady fires, get the plugin reference
+When the `deviceready` event fires, get the plugin reference:
 
 ```js
-pushNotification = window.plugins.pushNotification;
+document.addEventListener("deviceready", function() {
+  pushNotification = window.plugins.pushNotification;
+});
 ```
 
 #### register
@@ -73,14 +64,9 @@ Those values will typically get posted to your intermediary push server so it kn
 **senderID (Android only)** - The senderID can be defined in the config.android.xml or passed in the API call.
 This is the Google project ID you need to obtain by [registering your application](http://developer.android.com/guide/google/gcm/gs.html) for GCM
 
-```xml
-//configure the sender ID in the config.android.xml file
-<preference name="GCM_SenderId" value="1234567891011" />
-```
-
 ```js
 
-// result contains any error description text returned from the plugin call
+// the result contains any error description text returned from the plugin call
 function errorHandler (error) {
 	alert('error = ' + error);
 }
@@ -104,7 +90,13 @@ pushNotification.register(
 
 ```
 
-#### Handling Notifications that are received while app is in the Foreground
+Alternatively, you can set the sender ID it in `config.android.xml`:
+
+```xml
+<preference name="GCM_SenderId" value="1234567891011" />
+```
+
+#### Handling notifications that are received while app is in the foreground
 ```js
 
 // result contains any error description text returned from the plugin call
@@ -142,7 +134,7 @@ var media = new Media(steroids.app.absolutePath + '/' + sound);
 media.play();
 ```
 
-#### Handling Notifications that are received while app is in the Background
+#### Handling notifications that are received while app is in the Background
 ```js
 
 // result contains any error description text returned from the plugin call
@@ -150,10 +142,10 @@ function errorHandler (error) {
 	alert('error = ' + error);
 }
 
-function messageInForegroundHandler (notification) {
+function messageInBackgroundHandler (notification) {
 	if (notification.coldstart) {
-		// ios is always true
-		//the application was started by the uset taping in the notification
+		// ios, this is always true
+		// the application was started by the user tapping on the notification
 	}
 	else {
 		//this notification was delived while the app was in background
@@ -165,8 +157,8 @@ function messageInForegroundHandler (notification) {
 
 }
 
-pushNotification.onMessageInForeground(
-	messageInForegroundHandler,
+pushNotification.onMessageInBackground(
+	messageInBackgroundHandler,
 	errorHandler);
 ```
 Also make note of the **payload** object. Since the Android notification data model is much more flexible than that of iOS, there may be additional elements beyond **message**, **soundname**, and **msgcnt**. You can access those elements and any additional ones via the **payload** element. This means that if your data model should change in the future, there will be no need to change and recompile the plugin.
