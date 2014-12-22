@@ -392,7 +392,7 @@ public class NotificationService {
 
           if(!foreground){
 
-            final NotificationManager notificationManager = (NotificationManager) cordova.getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();
 
           }
