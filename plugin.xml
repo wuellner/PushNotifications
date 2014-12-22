@@ -3,18 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:amazon="http://schemas.android.com/apk/lib/com.amazon.device.ads"
     xmlns:rim="http://www.blackberry.com/ns/widgets"
-    id="com.phonegap.plugins.PushPlugin"
-    version="2.4.0">
+    id="com.appgyver.plugins.PushNotifications"
+    version="3.0.0">
 
   <name>PushPlugin</name>
 	<author>Bob Easterday</author>
 
 	<description>
-		This plugin allows your application to receive push notifications on Android, iOS, WP8 and Windows8 devices.
+		This plugin allows your application to receive push notifications on Android, iOS
     Android uses Google Cloud Messaging.
     iOS uses Apple APNS Notifications.
-    WP8 uses Microsoft MPNS Notifications.
-    Windows8 uses Microsoft WNS Notifications.
+    Windows and Amazon are not supported in this version of the plugin.
 	</description>
 
 	<license>MIT</license>
@@ -63,7 +62,7 @@
 		<source-file src="src/android/com/plugin/gcm/GCMIntentService.java" target-dir="src/com/plugin/gcm/" />
 		<source-file src="src/android/com/plugin/gcm/PushHandlerActivity.java" target-dir="src/com/plugin/gcm/" />
 		<source-file src="src/android/com/plugin/gcm/PushPlugin.java" target-dir="src/com/plugin/gcm/" />
-		<source-file src="src/android/com/plugin/android-support-v13.jar" target-dir="libs/" />
+    <source-file src="src/android/com/plugin/gcm/NotificationService.java" target-dir="src/com/plugin/gcm/" />
 
 	</platform>
 
