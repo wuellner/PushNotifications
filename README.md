@@ -131,6 +131,16 @@ pushNotification.onMessageInForeground(
 	messageInForegroundHandler,
 	errorHandler);
 ```
+#### Playing sound when handling a notification
+
+You can use steroids.app.absolutePath to build a file path that works on both platforms iOS and Android
+
+```js
+//handle the difference in payload from iOS and Android
+var sound = notification.sound || notification.soundname;
+var media = new Media(steroids.app.absolutePath + '/' + sound);
+media.play();
+```
 
 #### Handling Notifications that are received while app is in the Background
 ```js
