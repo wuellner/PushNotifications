@@ -73,7 +73,7 @@ static char launchNotificationKey;
 
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     // Get application state for iOS4.x+ devices, otherwise assume active
     UIApplicationState appState = UIApplicationStateActive;
     if ([application respondsToSelector:@selector(applicationState)]) {
@@ -91,6 +91,10 @@ static char launchNotificationKey;
     }
     
     [[NotificationService instance] receivedNotification:notification];
+
+    if(appState == UIApplicationStateBackground){
+        completionHandler(UIBackgroundFetchResultNewData);
+    }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
