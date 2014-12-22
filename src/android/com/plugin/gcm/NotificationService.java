@@ -1,5 +1,6 @@
 package com.plugin.gcm;
 
+import android.app.NotificationManager;
 import com.google.android.gcm.GCMRegistrar;
 
 import com.appgyver.event.EventService;
@@ -386,8 +387,18 @@ public class NotificationService {
     }
 
     public void setForeground(boolean foreground) {
-        Log.v(TAG, "setForeground() -> oldValue: " + mForeground + " newValue: " + foreground);
+        if(mForeground != foreground){
+          Log.v(TAG, "setForeground() -> oldValue: " + mForeground + " newValue: " + foreground);
+
+          if(!foreground){
+
+            final NotificationManager notificationManager = (NotificationManager) cordova.getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancelAll();
+
+          }
+        }
         mForeground = foreground;
+
     }
 
     public boolean isForeground() {
