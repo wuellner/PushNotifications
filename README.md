@@ -1,6 +1,11 @@
 # AppGyver Push Notifications Plugin for Android and iOS
 
----
+Minimum AppGyver client versions required:
+
+* Android 4.0.4-edge3
+* iOS 4.0.0
+
+N.B. Push Notifications require a real device!
 
 ## DESCRIPTION
 
@@ -8,34 +13,13 @@ This plugin is for use with [AppGyver Supersonic](http://www.appgyver.com), and 
 
 **Important** - Push notifications are intended for real devices. The registration process will fail on the iOS simulator. Notifications can be made to work on the Android Emulator. However, doing so requires installation of some helper libraries, as outlined [here,](http://www.androidhive.info/2012/10/android-push-notifications-using-google-cloud-messaging-gcm-php-and-mysql/) under the section titled "Installing helper libraries and setting up the Emulator".
 
-## LICENSE
 
-The MIT License
+## Installation
 
-Copyright (c) 2012 Adobe Systems, inc.
-portions Copyright (c) 2012 Olivier Louvignes
+Deploy your application to the [AppGyver Build Service](https://cloud.appgyver.com) and click "[X] Push Notifications" under "Configuration". Then create a new custom Scanner/AdHoc build. It include this plugin with your certificates.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Please follow the [guide for Push Notifications](docs.appgyver.com/supersonic/guides/) which will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-## Automatic Installation
-
-This plugin is compatible with the AppGyver Build Service. Read more in the [Plugins guide](http://docs.appgyver.com/tooling/build-service/plugins/).
 
 ## Plugin API
 
@@ -63,6 +47,7 @@ Those values will typically get posted to your intermediary push server so it kn
 
 **senderID (Android only)** - The senderID can be defined in the config.android.xml or passed in the API call.
 This is the Google project ID you need to obtain by [registering your application](http://developer.android.com/guide/google/gcm/gs.html) for GCM
+
 
 ```js
 
@@ -123,6 +108,7 @@ pushNotification.onMessageInForeground(
 	messageInForegroundHandler,
 	errorHandler);
 ```
+
 #### Playing sound when handling a notification
 
 You can use steroids.app.absolutePath to build a file path that works on both platforms iOS and Android
@@ -133,6 +119,9 @@ var sound = notification.sound || notification.soundname;
 var media = new Media(steroids.app.absolutePath + '/' + sound);
 media.play();
 ```
+
+You will need to include the sound file in your Steroids application project. `steroids.app.absolutePath` points to the internal directory which has the contents of the `dist` folder of your Steroids application.
+
 
 #### Handling notifications that are received while app is in the Background
 ```js
@@ -247,12 +236,14 @@ In a production environment, your app, upon registration, would send the device 
 
 f you're not up to building and maintaining your own intermediary push server, there are a number of commercial push services out there which support both APNS and GCM.
 
-[Urban Airship](http://urbanairship.com/products/push-notifications/)
+[Amazon SNS with Push Messaging](http://aws.amazon.com/sns/)
 
 [Pushwoosh](http://www.pushwoosh.com/)
 
 [openpush](http://openpush.im)
-	[kony](http://www.kony.com/push-notification-services) and many others.
+
+[Urban Airship](http://urbanairship.com/products/push-notifications/)
+
 
 
 ## Notes
@@ -264,6 +255,8 @@ If everything seems right and you are not receiving a registration id response b
 While the data model for iOS is somewhat fixed, it should be noted that GCM is far more flexible. The Android implementation in this plugin, for example, assumes the incoming message will contain a '**message**' and a '**msgcnt**' node. This is reflected in both the plugin (see GCMIntentService.java) as well as in provided example ruby script (pushGCM.rb). Should you employ a commercial service, their data model may differ. As mentioned earlier, this is where you will want to take a look at the **payload** element of the message event. In addition to the cannonical message and msgcnt elements, any additional elements in the incoming JSON object will be accessible here, obviating the need to edit and recompile the plugin. Many thanks to Tobias Hößl for this functionality!
 
 ## Additional Resources
+
+[AppGyver guide for Push Notifications](docs.appgyver.com/supersonic/guides/) will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
 
 [Local and Push Notification Programming Guide](http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html) (Apple)
 
@@ -277,8 +270,35 @@ While the data model for iOS is somewhat fixed, it should be noted that GCM is f
 
 ## Acknowledgments
 
+This Plugin is based on [Cordova PushPlugin](https://github.com/phonegap-build/PushPlugin).
+
 Huge thanks to Mark Nutter whose [GCM-Cordova plugin](https://github.com/marknutter/GCM-Cordova) forms the basis for the Android side implimentation.
 
 Likewise, the iOS side was inspired by Olivier Louvignes' [Cordova PushNotification Plugin](https://github.com/phonegap/phonegap-plugins/tree/master/iOS/PushNotification) (Copyright (c) 2012 Olivier Louvignes) for iOS.
 
 Props to [Tobias Hößl](https://github.com/CatoTH), who provided the code to surface the full JSON object up to the JS layer.
+
+## LICENSE
+
+The MIT License
+
+Copyright (c) 2014 AppGyver Inc. (c) 2012 Adobe Systems, inc.
+portions Copyright (c) 2012 Olivier Louvignes
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
