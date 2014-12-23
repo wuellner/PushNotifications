@@ -18,7 +18,7 @@ This plugin is for use with [AppGyver Supersonic](http://www.appgyver.com), and 
 
 Deploy your application to the [AppGyver Build Service](https://cloud.appgyver.com) and click "[X] Push Notifications" under "Configuration". Then create a new custom Scanner/AdHoc build. It include this plugin with your certificates.
 
-Please follow the [guide for Push Notifications](docs.appgyver.com/supersonic/guides/) which will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
+Please follow the [guide for Push Notifications](http://docs.appgyver.com/supersonic/guides/) which will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
 
 
 ## Plugin API
@@ -199,8 +199,9 @@ However, when testing the notification client applications, it may be desirable 
 #### 1) [Get the gem](https://github.com/NicosKaralis/pushmeup)
 	$ sudo gem install pushmeup
 
-#### 2) (iOS) [Follow this tutorial](http://www.raywenderlich.com/3443/apple-push-notification-services-tutorial-part-12) to create a file called ck.pem.
-Start at the section entitled "Generating the Certificate Signing Request (CSR)", and substitute your own Bundle Identifier, and Description.
+#### 2) (iOS) [Follow the AppGyver Push Notification Guide](http://docs.appgyver.com/supersonic/guides/)
+
+Create the push notification certificate as instructed in the guide and convert the generated `aps_development.p12` file as `ck.pem` file.
 
 a) go the this plugin's Example/server folder and open pushAPNS.rb in the text editor of your choice.
 
@@ -212,7 +213,9 @@ d) set device_token to the token for the device you want to send a push to. (you
 
 e) save your changes.
 
-#### 3) (Android) [Follow these steps](http://developer.android.com/guide/google/gcm/gs.html) to generate a project ID and a server based API key.
+#### 3) (Android) [Follow the AppGyver Push Notification Guide](http://docs.appgyver.com/supersonic/guides/)
+
+[Do these steps in Google's GCM documentation](http://developer.android.com/guide/google/gcm/gs.html) to generate a project ID and a server based API key.
 
 a) go the this plugin's Example/server folder and open pushGCM.rb in the text editor of your choice.
 
@@ -256,7 +259,7 @@ While the data model for iOS is somewhat fixed, it should be noted that GCM is f
 
 ## Additional Resources
 
-[AppGyver guide for Push Notifications](docs.appgyver.com/supersonic/guides/) will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
+[AppGyver guide for Push Notifications](http://docs.appgyver.com/supersonic/guides/) will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
 
 [Local and Push Notification Programming Guide](http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html) (Apple)
 
