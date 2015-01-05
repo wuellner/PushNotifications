@@ -2,10 +2,12 @@
 
 Minimum AppGyver client versions required:
 
-* Android 4.0.4-edge3
-* iOS 4.0.0
+* AppGyver Android client >= 4.0.4-edge3
+* AppGyver iOS client >= 4.0.0
+* A real device with iOS, recommended also with Android
 
-N.B. Push Notifications require a real device!
+Please follow the [AppGyver guide for Push Notifications](http://docs.appgyver.com/tooling/push-notifications/).
+
 
 ## DESCRIPTION
 
@@ -18,7 +20,7 @@ This plugin is for use with [AppGyver Supersonic](http://www.appgyver.com), and 
 
 Deploy your application to the [AppGyver Build Service](https://cloud.appgyver.com) and click "[X] Push Notifications" under "Configuration". Then create a new custom Scanner/AdHoc build. It include this plugin with your certificates.
 
-Please follow the [guide for Push Notifications](http://docs.appgyver.com/supersonic/guides/) which will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
+Please follow the [AppGyver guide for Push Notifications](http://docs.appgyver.com/tooling/push-notifications/) which will help you to create the required Push Notification certificates for Apple APNS and Google GCM API keys.
 
 
 ## Plugin API
@@ -82,6 +84,9 @@ Alternatively, you can set the sender ID it in `config.android.xml`:
 ```
 
 #### Handling notifications that are received while app is in the foreground
+
+N.B. Duplicate messages (identical payload) are currently silently discarded. This might change in the near-term-future!
+
 ```js
 
 // result contains any error description text returned from the plugin call
@@ -124,6 +129,10 @@ You will need to include the sound file in your Steroids application project. `s
 
 
 #### Handling notifications that are received while app is in the Background
+
+N.B. Duplicate messages (identical payload) are currently silently discarded. This might change in the near-term-future!
+
+
 ```js
 
 // result contains any error description text returned from the plugin call
