@@ -81,7 +81,10 @@ static char launchNotificationKey;
     }
 
     NSMutableDictionary* notification = [NSMutableDictionary dictionaryWithDictionary:[userInfo objectForKey:@"aps"]];
-    
+
+    [notification setObject:[self getUUID] forKey:@"uuid"];
+    [notification setObject:[self getCurrentDate] forKey:@"timestamp"];
+
     if (appState == UIApplicationStateActive) {
         [notification setObject:[NSNumber numberWithBool:YES] forKey:@"foreground"];
     }
@@ -101,6 +104,22 @@ static char launchNotificationKey;
     NSLog(@"active");
     //zero badge
     application.applicationIconBadgeNumber = 0;
+}
+
+- (NSString*) getCurrentDate {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    [dateFormatter setLocale:enUSPOSIXLocale];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+
+    NSDate *now = [NSDate date];
+    NSString *iso8601String = [dateFormatter stringFromDate:now];
+    return iso8601String;
+}
+
+- (NSString*) getUUID {
+    NSString* UUID = [[NSUUID UUID] UUIDString];
+    return UUID;
 }
 
 @end
