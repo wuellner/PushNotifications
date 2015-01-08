@@ -15,8 +15,6 @@
 
 @property (strong, nonatomic) NSString* deviceToken;
 
-@property (nonatomic) BOOL registrationRejectedByUser;
-
 @property (strong, nonatomic) NSString* failedToRegisterError;
 
 @property (strong, nonatomic) NSMutableArray* listOfPluginReferences;
@@ -33,6 +31,8 @@
 -(void)failToRegister:(NSError*)error;
 
 -(void) unRegister;
+
+-(bool) notificationsEnabled;
 
 -(void) addBackgroundCallBack:(CDVInvokedUrlCommand*)command plugin:(CDVPlugin*) plugin;
 

@@ -28,11 +28,11 @@ static NotificationService *instance;
 
 @implementation PluginReference
 
-@synthesize registerCallBack, foregroundMessageCallBack, backgroundMessageCallBack, plugin, notifiedOfRegistration, listOfNotificationsDelivered;
+@synthesize registerCallBack, foregroundMessageCallBack, backgroundMessageCallBack, plugin, listOfNotificationsDelivered;
 
 -(void) cleanUp {
     [listOfNotificationsDelivered removeAllObjects];
-    
+
     plugin = nil;
     registerCallBack = nil;
     foregroundMessageCallBack = nil;
@@ -40,30 +40,24 @@ static NotificationService *instance;
 }
 
 -(void)notifyRegistration{
-    if(notifiedOfRegistration || registerCallBack == nil){
+    if(registerCallBack == nil){
         return;
     }
-    
-    if([NotificationService instance].registrationRejectedByUser){
-        CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User has not allowed push notifications."];
+
+    if(![[NotificationService instance] notificationsEnabled]){
+        CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Push notifications are not enabled for this app."];
         [plugin.commandDelegate sendPluginResult:commandResult callbackId:registerCallBack.callbackId];
-        
-        notifiedOfRegistration = YES;
     }
     else if([NotificationService instance].deviceToken){
         CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NotificationService instance].deviceToken];
         [plugin.commandDelegate sendPluginResult:commandResult callbackId:registerCallBack.callbackId];
-        
-        notifiedOfRegistration = YES;
     }
     else if([NotificationService instance].failedToRegisterError){
-        
+
         CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                            messageAsString:[NSString stringWithFormat:@"Error during registration: %@",
                                                                             [NotificationService instance].failedToRegisterError]];
         [plugin.commandDelegate sendPluginResult:commandResult callbackId:registerCallBack.callbackId];
-        
-        notifiedOfRegistration = YES;
     }
 }
 
@@ -71,29 +65,29 @@ static NotificationService *instance;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:notification];
     commandResult.keepCallback = [NSNumber numberWithBool:YES];
     [plugin.commandDelegate sendPluginResult:commandResult callbackId:callback.callbackId];
-    
+
 }
 
 -(void)sendNotification:(NSDictionary*)notification {
-    
+
     if(!listOfNotificationsDelivered){
         listOfNotificationsDelivered = [NSMutableArray new];
     }
-    
+
     if([listOfNotificationsDelivered containsObject:notification]){
         //NSLog(@"Notification already delivered to this webview");
         return;
     }
-    
+
     BOOL isForeground = [[notification valueForKey:@"foreground"] boolValue];
-    
+
     if(isForeground){
         [self sendNotification:notification toCallback:foregroundMessageCallBack];
     }
     else{
         [self sendNotification:notification toCallback:backgroundMessageCallBack];
     }
-    
+
     [listOfNotificationsDelivered addObject:notification];
 }
 
@@ -104,7 +98,7 @@ static NotificationService *instance;
 
 @implementation NotificationService
 
-@synthesize deviceToken, registrationRejectedByUser, listOfPluginReferences, listOfNotifications, failedToRegisterError;
+@synthesize deviceToken, listOfPluginReferences, listOfNotifications, failedToRegisterError;
 
 +(NotificationService*) instance {
     if ( instance == nil ){
@@ -135,13 +129,25 @@ static NotificationService *instance;
 -(void) unRegister {
     [[UIApplication sharedApplication] unregisterForRemoteNotifications];
     deviceToken = nil;
-    registrationRejectedByUser = NO;
     [self cleanUp];
 }
 
--(void) userDeniedRegistration {
-    registrationRejectedByUser = YES;
-    [self notifyRegistrationToAllWebViews];
+-(bool) notificationsEnabled {
+    UIApplication *application = [UIApplication sharedApplication];
+
+    BOOL enabled;
+
+    // Try to use the newer isRegisteredForRemoteNotifications otherwise use the enabledRemoteNotificationTypes.
+    if ([application respondsToSelector:@selector(isRegisteredForRemoteNotifications)])
+    {
+        enabled = [application isRegisteredForRemoteNotifications];
+    }
+    else
+    {
+        UIRemoteNotificationType types = [application enabledRemoteNotificationTypes];
+        enabled = types & UIRemoteNotificationTypeAlert;
+    }
+    return enabled;
 }
 
 -(void) notifyRegistrationToAllWebViews {
@@ -160,22 +166,22 @@ static NotificationService *instance;
 
 -(void) receivedNotification:(NSDictionary*)notification{
     NSLog(@"receivedNotification() -> %@", notification);
-    
+
     [listOfNotifications addObject:notification];
     [self sendNotificationToAllWebViews];
 }
 
-//check if the user has allowed for notifications of not
+
 -(void) didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
     if ([settings types] != UIUserNotificationTypeNone) {
         [[UIApplication sharedApplication] registerForRemoteNotifications];
     } else {
-        [self userDeniedRegistration];
+        [self notifyRegistrationToAllWebViews];
     }
 }
 
 -(void) onRegistered:(NSData *)deviceTokenData {
-    
+
     self.deviceToken = [[[[deviceTokenData description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
                         stringByReplacingOccurrencesOfString:@">" withString:@""]
                        stringByReplacingOccurrencesOfString: @" " withString: @""];
@@ -200,24 +206,24 @@ static NotificationService *instance;
 -(void) addBackgroundCallBack:(CDVInvokedUrlCommand*)command plugin:(CDVPlugin*) plugin{
     PluginReference* pluginReference = [self getPluginReference:plugin];
     pluginReference.backgroundMessageCallBack = command;
-    
+
     [self flushNotificationsToWebView:pluginReference];
 }
 
 -(void) addForegroundCallBack:(CDVInvokedUrlCommand*)command plugin:(CDVPlugin*) plugin{
     PluginReference* pluginReference = [self getPluginReference:plugin];
     pluginReference.foregroundMessageCallBack = command;
-    
+
     [self flushNotificationsToWebView:pluginReference];
 }
 
 -(PluginReference*) createPluginReference:(CDVPlugin*)plugin {
     PluginReference* pluginReference = [PluginReference new];
-    
+
     pluginReference.plugin = plugin;
-    
+
     [listOfPluginReferences addObject:pluginReference];
-    
+
     return pluginReference;
 }
 
@@ -241,14 +247,14 @@ static NotificationService *instance;
 }
 
 -(BOOL) isRegistrationComplete {
-    return deviceToken != nil || registrationRejectedByUser || failedToRegisterError != nil;
+    return deviceToken != nil || failedToRegisterError != nil;
 }
 
 -(void) addRegistrationCallBack:(CDVInvokedUrlCommand*)command plugin:(CDVPlugin*) plugin{
-    
+
     PluginReference* pluginReference = [self getPluginReference:plugin];
     pluginReference.registerCallBack = command;
-    
+
     if ([self isRegistrationComplete]) {
         [pluginReference notifyRegistration];
     } else {
@@ -261,22 +267,22 @@ static NotificationService *instance;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 - (void) enableiOS8NotificationsWithBadgeEnabled:(BOOL) badgeEnabled SoundEnabled:(BOOL) soundEnabled AlertEnabled:(BOOL) alertEnabled {
     UIUserNotificationType notificationTypes = UIUserNotificationTypeNone;
-    
+
     if (badgeEnabled)
         notificationTypes |= UIUserNotificationTypeBadge;
-    
+
     if (soundEnabled)
         notificationTypes |= UIUserNotificationTypeSound;
-    
+
     if (alertEnabled)
         notificationTypes |= UIUserNotificationTypeAlert;
-    
+
     if (notificationTypes == UIUserNotificationTypeNone){
         NSLog(@"PushPlugin.register: Push notification type is set to none");
     }
-    
+
     UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
-    
+
     [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
 }
 #endif
@@ -285,17 +291,17 @@ static NotificationService *instance;
     UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeNone;
     if (badgeEnabled)
         notificationTypes |= UIRemoteNotificationTypeBadge;
-    
+
     if (soundEnabled)
         notificationTypes |= UIRemoteNotificationTypeSound;
-    
+
     if (alertEnabled)
         notificationTypes |= UIRemoteNotificationTypeAlert;
-    
+
     if (notificationTypes == UIRemoteNotificationTypeNone){
         NSLog(@"PushPlugin.register: Push notification type is set to none");
     }
-    
+
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
 }
 
@@ -318,7 +324,7 @@ static NotificationService *instance;
     BOOL badgeEnabled = [self parseBool:[options objectForKey:@"badge"]];
     BOOL soundEnabled = [self parseBool:[options objectForKey:@"sound"]];
     BOOL alertEnabled = [self parseBool:[options objectForKey:@"alert"]];
-    
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         // iOS8 in iOS8 SDK
