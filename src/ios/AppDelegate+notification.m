@@ -100,12 +100,6 @@ static char launchNotificationKey;
     }
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    NSLog(@"active");
-    //zero badge
-    application.applicationIconBadgeNumber = 0;
-}
-
 - (NSString*) getCurrentDate {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
