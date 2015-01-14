@@ -19,6 +19,11 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
+import java.util.TimeZone;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 /**
  * Notification Service - Handles Push Notification and deliver the messages to all web views
@@ -51,6 +56,10 @@ public class NotificationService {
     public static final String JSON_ARRAY_START_PREFIX = "[";
 
     public static final String PAYLOAD = "payload";
+
+    public static final String TIMESTAMP = "timestamp";
+
+    public static final String UUID = "uuid";
 
     private static NotificationService sInstance;
 
@@ -324,12 +333,29 @@ public class NotificationService {
 
             notification.put(FOREGROUND, isForeground());
 
+            notification.put(TIMESTAMP, getTimeStamp());
+
+            notification.put(UUID, generateUUID());
+
             return notification;
 
         } catch (JSONException e) {
             Log.e(TAG, "extrasToJSON: JSON exception");
         }
         return null;
+    }
+
+    private String generateUUID() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
+    }
+
+    private String getTimeStamp() {
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(tz);
+        String timeAsISO = df.format(new Date());
+        return timeAsISO;
     }
 
     // Try to figure out if the value is another JSON object or JSON Array
