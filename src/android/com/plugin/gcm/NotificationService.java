@@ -1,6 +1,7 @@
 package com.plugin.gcm;
 
 import android.app.NotificationManager;
+
 import com.google.android.gcm.GCMRegistrar;
 
 import com.appgyver.event.EventService;
@@ -127,7 +128,7 @@ public class NotificationService {
     }
 
     public void addNotificationForegroundCallBack(CordovaWebView webView,
-            CallbackContext callBack) {
+                                                  CallbackContext callBack) {
         WebViewReference webViewReference = getWebViewReference(webView);
         webViewReference.setNotificationForegroundCallBack(callBack);
 
@@ -135,7 +136,7 @@ public class NotificationService {
     }
 
     public void addNotificationBackgroundCallBack(CordovaWebView webView,
-            CallbackContext callBack) {
+                                                  CallbackContext callBack) {
         WebViewReference webViewReference = getWebViewReference(webView);
         webViewReference.setNotificationBackgroundCallBack(callBack);
 
@@ -211,17 +212,17 @@ public class NotificationService {
 
     /**
      * Deliver a notification message..
+     *
      * @param extras
      * @param userAction -    When this flag is true we try to remove a duplicate notification.
-     *                        This only happens when the IntentService delivers the notification
-     *                        and the PushHandlerActivity also delivers the same notification
-     *                        because the user tapped in the notification.
-     *
+     *                   This only happens when the IntentService delivers the notification
+     *                   and the PushHandlerActivity also delivers the same notification
+     *                   because the user tapped in the notification.
      */
     public void onMessage(Bundle extras, boolean userAction) {
         JSONObject notification = createNotificationJSON(extras);
 
-        if(userAction) {
+        if (userAction) {
             tryToRemoveDuplicate(notification);
 
             try {
@@ -242,14 +243,14 @@ public class NotificationService {
     private void tryToRemoveDuplicate(JSONObject notification) {
         int idx = 0;
         boolean found = false;
-        for(idx = 0; idx < mNotifications.size(); idx++){
+        for (idx = 0; idx < mNotifications.size(); idx++) {
             JSONObject item = mNotifications.get(idx);
-            if(isEqual(notification, item)){
+            if (isEqual(notification, item)) {
                 found = true;
                 break;
             }
         }
-        if(found){
+        if (found) {
             Log.v(TAG, "tryToRemoveDuplicate() Duplicate found.. and removed.");
             mNotifications.remove(idx);
         }
@@ -258,8 +259,8 @@ public class NotificationService {
     private boolean isEqual(JSONObject from, JSONObject to) {
         boolean isEqual = false;
 
-        if(from != null && to != null &&
-                from.length() == to.length()){
+        if (from != null && to != null &&
+                from.length() == to.length()) {
 
             try {
                 Iterator<String> keys = from.keys();
@@ -267,29 +268,25 @@ public class NotificationService {
                 while (keys.hasNext() && isEqual) {
                     String key = keys.next();
 
-                    if(from.get(key) == null && to.get(key) == null){
+                    if (from.get(key) == null && to.get(key) == null) {
                         continue;
                     }
 
-                    if(from.get(key) instanceof JSONObject){
-                        isEqual = isEqual((JSONObject)from.get(key), (JSONObject)to.get(key));
-                    }
-                    else{
-                        isEqual =  from.get(key).equals(to.get(key));
+                    if (from.get(key) instanceof JSONObject) {
+                        isEqual = isEqual((JSONObject) from.get(key), (JSONObject) to.get(key));
+                    } else {
+                        isEqual = from.get(key).equals(to.get(key));
                     }
                 }
-            }
-            catch(Exception exp){
+            } catch (Exception exp) {
                 /*no op*/
             }
-        }
-        else{
+        } else {
             isEqual = false;
         }
 
         return isEqual;
     }
-
 
 
     private void notifyAllWebViews() {
@@ -360,7 +357,7 @@ public class NotificationService {
 
     // Try to figure out if the value is another JSON object or JSON Array
     private void parseJsonProperty(String key, JSONObject json, Bundle extras,
-            JSONObject jsondata) throws JSONException {
+                                   JSONObject jsondata) throws JSONException {
 
         if (extras.get(key) instanceof String) {
             String strValue = extras.getString(key);
@@ -381,7 +378,7 @@ public class NotificationService {
                     jsondata.put(key, strValue);
                 }
             } else {
-                if(!json.has(key)) {
+                if (!json.has(key)) {
                     jsondata.put(key, strValue);
                 }
             }
@@ -413,15 +410,15 @@ public class NotificationService {
     }
 
     public void setForeground(boolean foreground) {
-        if(mForeground != foreground){
-          Log.v(TAG, "setForeground() -> oldValue: " + mForeground + " newValue: " + foreground);
+        if (mForeground != foreground) {
+            Log.v(TAG, "setForeground() -> oldValue: " + mForeground + " newValue: " + foreground);
 
-          if(!foreground){
+            if (!foreground) {
 
-            final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancelAll();
+                final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancelAll();
 
-          }
+            }
         }
         mForeground = foreground;
 
@@ -450,7 +447,6 @@ public class NotificationService {
         mWebViewReferences.clear();
         mNotifications.clear();
     }
-
 
 
     static class WebViewReference {
@@ -541,7 +537,7 @@ public class NotificationService {
         }
 
         private void sendNotification(CallbackContext callBack,
-                JSONObject notification) {
+                                      JSONObject notification) {
 
             if (callBack != null) {
 
