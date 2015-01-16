@@ -60,7 +60,7 @@ public class NotificationService {
 
     public static final String TIMESTAMP = "timestamp";
 
-    public static final String UUID = "uuid";
+    public static final String KEY_UUID = "uuid";
 
     private static NotificationService sInstance;
 
@@ -332,7 +332,7 @@ public class NotificationService {
 
             notification.put(TIMESTAMP, getTimeStamp());
 
-            notification.put(UUID, generateUUID());
+            notification.put(KEY_UUID, generateUUID());
 
             return notification;
 
@@ -344,14 +344,17 @@ public class NotificationService {
 
     private String generateUUID() {
         UUID uuid = UUID.randomUUID();
+
         return uuid.toString();
     }
 
     private String getTimeStamp() {
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+
         df.setTimeZone(tz);
         String timeAsISO = df.format(new Date());
+
         return timeAsISO;
     }
 
