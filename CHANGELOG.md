@@ -1,5 +1,9 @@
 # PushNotification plugin changelog
 
+### 1.1.1 (2015-01-15)
+
+Features:
+- Messages now have `uuid` and `timestamp` fields on Android.
 
 ### 1.1.0 (2015-01-09)
 

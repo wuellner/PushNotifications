@@ -85,8 +85,6 @@ Alternatively, you can set the sender ID it in `config.android.xml`:
 
 #### Handling notifications that are received while app is in the foreground
 
-N.B. Duplicate messages (identical payload) are currently silently discarded. This might change in the near-term-future!
-
 ```js
 
 // result contains any error description text returned from the plugin call
@@ -113,6 +111,8 @@ pushNotification.onMessageInForeground(
 	messageInForegroundHandler,
 	errorHandler);
 ```
+
+Notifications have a `uuid` and `timestamp` properties. This allows messages with otherwise identical content to be discerned from one another.
 
 #### Playing sound when handling a notification
 
