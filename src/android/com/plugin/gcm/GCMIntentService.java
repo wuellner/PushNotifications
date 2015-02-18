@@ -41,6 +41,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onMessage(Context context, Intent intent) {
         boolean isPushPluginActive = NotificationService.getInstance(context).isActive();
+        boolean isPushPluginInForeground = NotificationService.getInstance(context).isForeground();
 
         Log.d(TAG, "onMessage - isPushPluginActive: " + isPushPluginActive);
 
@@ -52,8 +53,10 @@ public class GCMIntentService extends GCMBaseIntentService {
             }
             NotificationService.getInstance(context).onMessage(extras);
 
-            if (extras.getString(MESSAGE) != null && extras.getString(MESSAGE).length() != 0) {
-                createNotification(context, extras);
+            if (!isPushPluginInForeground) {
+                if (extras.getString(MESSAGE) != null && extras.getString(MESSAGE).length() != 0) {
+                    createNotification(context, extras);
+                }
             }
         }
     }
@@ -64,8 +67,7 @@ public class GCMIntentService extends GCMBaseIntentService {
         String appName = getAppName(this);
 
         Intent notificationIntent = new Intent(this, PushHandlerActivity.class);
-        notificationIntent.addFlags(
-                Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra("pushBundle", extras);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
