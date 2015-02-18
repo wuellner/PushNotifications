@@ -64,7 +64,7 @@ public class NotificationService {
 
     private static NotificationService sInstance;
 
-    private boolean mIsActive = false;
+    private boolean mIsActive = true;
 
     private final Context mContext;
 

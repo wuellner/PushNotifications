@@ -35,11 +35,11 @@ public class PushHandlerActivity extends Activity {
 
         GCMIntentService.cancelNotification(this);
 
-        finish();
-
         if (!isPushPluginActive) {
             forceMainActivityReload();
         }
+
+        finish();
     }
 
     /**
@@ -72,7 +72,7 @@ public class PushHandlerActivity extends Activity {
         Log.v(TAG, "forceMainActivityReload() - packageName: " + packageName);
 
         Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
-        startActivity(launchIntent);
+        startActivity(launchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
     }
 
     @Override
