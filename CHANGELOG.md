@@ -2,13 +2,13 @@
 
 ### 1.2.0 (TODO)
 
-Breaking changes:
-- The `coldstart` property on Android now means that the message was received when the app was not running, not that it was launched via the notification.
+Breaking changes (Android):
+- The `coldstart` property now means that the message was received when the app was not running, not that it was launched via the notification.
 
-Bugfixes:
-- On Android, correctly kickstart the application when it is not running and a push notification in the launcher is tapped.
+Bugfixes (Android):
+- Correctly kickstart the application when it is not running and a push notification in the launcher is tapped.
 - Do not display push notifications in status bar/launcher if the app is running.
-- Clear push notifications from status bar when the app is opened.
+- Clear push notifications from status bar when the app is opened, not when it again returns to the background.
 
 ### 1.1.2 (2015-02-11)
 
