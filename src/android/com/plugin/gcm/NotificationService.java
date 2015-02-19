@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 
 import com.google.android.gcm.GCMRegistrar;
 
+import com.appgyver.cordova.AGCordovaApplicationInterface;
 import com.appgyver.event.EventService;
 
 import org.apache.cordova.CallbackContext;
@@ -27,16 +28,14 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 
 /**
- * Notification Service - Handles Push Notification and deliver the messages to all web views
- * that have registered callbacks.
+ * Notification Service - Handles Push Notification and deliver the messages to all web views that
+ * have registered callbacks.
  */
 public class NotificationService {
 
     public static final String USER_ACTION = "userAction";
 
     private static String TAG = "PushPlugin-NotificationService";
-
-    public static final String REG_ID = "regID";
 
     public static final String FOREGROUND = "foreground";
 
@@ -64,8 +63,6 @@ public class NotificationService {
 
     private static NotificationService sInstance;
 
-    private boolean mIsActive = true;
-
     private final Context mContext;
 
     private String mSenderID;
@@ -80,27 +77,11 @@ public class NotificationService {
 
     public NotificationService(Context context) {
         mContext = context;
-
-        EventService.getInstance().addEventListener(EventService.STEROIDS_APPLICATION_STARTED,
-                new EventService.EventHandler() {
-                    @Override
-                    public void call(Object eventContext) {
-                        mIsActive = true;
-                    }
-                });
-
-        EventService.getInstance().addEventListener(EventService.STEROIDS_APPLICATION_ENDED,
-                new EventService.EventHandler() {
-                    @Override
-                    public void call(Object eventContext) {
-                        cleanUp();
-                        mIsActive = false;
-                    }
-                });
     }
 
-    public boolean isActive() {
-        return mIsActive;
+    public boolean isApplicationRunning() {
+        return ((AGCordovaApplicationInterface) mContext.getApplicationContext()).getCurrentActivity()
+                != null;
     }
 
     public static NotificationService getInstance(Context context) {
@@ -128,7 +109,7 @@ public class NotificationService {
     }
 
     public void addNotificationForegroundCallBack(CordovaWebView webView,
-                                                  CallbackContext callBack) {
+            CallbackContext callBack) {
         WebViewReference webViewReference = getWebViewReference(webView);
         webViewReference.setNotificationForegroundCallBack(callBack);
 
@@ -136,7 +117,7 @@ public class NotificationService {
     }
 
     public void addNotificationBackgroundCallBack(CordovaWebView webView,
-                                                  CallbackContext callBack) {
+            CallbackContext callBack) {
         WebViewReference webViewReference = getWebViewReference(webView);
         webViewReference.setNotificationBackgroundCallBack(callBack);
 
@@ -207,87 +188,16 @@ public class NotificationService {
     }
 
     public void onMessage(Bundle extras) {
-        onMessage(extras, false);
-    }
-
-    /**
-     * Deliver a notification message..
-     *
-     * @param extras
-     * @param userAction -    When this flag is true we try to remove a duplicate notification.
-     *                   This only happens when the IntentService delivers the notification
-     *                   and the PushHandlerActivity also delivers the same notification
-     *                   because the user tapped in the notification.
-     */
-    public void onMessage(Bundle extras, boolean userAction) {
         JSONObject notification = createNotificationJSON(extras);
 
-        if (userAction) {
-            tryToRemoveDuplicate(notification);
-
-            try {
-                notification.put(USER_ACTION, true);
-            } catch (JSONException e) {
-                /*no op*/
-            }
-        }
-
-        Log.v(TAG, "onMessage() -> isForeground: " + isForeground() + " notification: "
+        Log.v(TAG, "onMessage() -> isForeground: " + isForeground() + " isApplicationRunning "
+                + isApplicationRunning() + " notification: "
                 + notification);
 
         addNotification(notification);
 
         notifyAllWebViews();
     }
-
-    private void tryToRemoveDuplicate(JSONObject notification) {
-        int idx = 0;
-        boolean found = false;
-        for (idx = 0; idx < mNotifications.size(); idx++) {
-            JSONObject item = mNotifications.get(idx);
-            if (isEqual(notification, item)) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            Log.v(TAG, "tryToRemoveDuplicate() Duplicate found.. and removed.");
-            mNotifications.remove(idx);
-        }
-    }
-
-    private boolean isEqual(JSONObject from, JSONObject to) {
-        boolean isEqual = false;
-
-        if (from != null && to != null &&
-                from.length() == to.length()) {
-
-            try {
-                Iterator<String> keys = from.keys();
-                isEqual = true;
-                while (keys.hasNext() && isEqual) {
-                    String key = keys.next();
-
-                    if (from.get(key) == null && to.get(key) == null) {
-                        continue;
-                    }
-
-                    if (from.get(key) instanceof JSONObject) {
-                        isEqual = isEqual((JSONObject) from.get(key), (JSONObject) to.get(key));
-                    } else {
-                        isEqual = from.get(key).equals(to.get(key));
-                    }
-                }
-            } catch (Exception exp) {
-                /*no op*/
-            }
-        } else {
-            isEqual = false;
-        }
-
-        return isEqual;
-    }
-
 
     private void notifyAllWebViews() {
         for (WebViewReference webViewReference : mWebViewReferences) {
@@ -296,7 +206,8 @@ public class NotificationService {
     }
 
     private void flushNotificationToWebView(WebViewReference webViewReference) {
-        Log.v(TAG, "flushNotificationToWebView() - Notifications.size(): " + mNotifications.size() + " -> webViewReference: " + webViewReference);
+        Log.v(TAG, "flushNotificationToWebView() - Notifications.size(): " + mNotifications.size()
+                + " -> webViewReference: " + webViewReference);
 
         for (JSONObject notification : mNotifications) {
             webViewReference.sendNotification(notification);
@@ -330,6 +241,8 @@ public class NotificationService {
 
             notification.put(FOREGROUND, isForeground());
 
+            notification.put(COLDSTART, !isApplicationRunning());
+
             notification.put(TIMESTAMP, getTimeStamp());
 
             notification.put(KEY_UUID, generateUUID());
@@ -360,7 +273,7 @@ public class NotificationService {
 
     // Try to figure out if the value is another JSON object or JSON Array
     private void parseJsonProperty(String key, JSONObject json, Bundle extras,
-                                   JSONObject jsondata) throws JSONException {
+            JSONObject jsondata) throws JSONException {
 
         if (extras.get(key) instanceof String) {
             String strValue = extras.getString(key);
@@ -418,7 +331,9 @@ public class NotificationService {
 
             if (!foreground) {
 
-                final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                final NotificationManager notificationManager
+                        = (NotificationManager) mContext.getSystemService(
+                        Context.NOTIFICATION_SERVICE);
                 notificationManager.cancelAll();
 
             }
@@ -540,7 +455,7 @@ public class NotificationService {
         }
 
         private void sendNotification(CallbackContext callBack,
-                                      JSONObject notification) {
+                JSONObject notification) {
 
             if (callBack != null) {
 
