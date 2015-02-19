@@ -329,14 +329,11 @@ public class NotificationService {
         if (mForeground != foreground) {
             Log.v(TAG, "setForeground() -> oldValue: " + mForeground + " newValue: " + foreground);
 
-            if (!foreground) {
+            final NotificationManager notificationManager
+                    = (NotificationManager) mContext.getSystemService(
+                    Context.NOTIFICATION_SERVICE);
+            notificationManager.cancelAll();
 
-                final NotificationManager notificationManager
-                        = (NotificationManager) mContext.getSystemService(
-                        Context.NOTIFICATION_SERVICE);
-                notificationManager.cancelAll();
-
-            }
         }
         mForeground = foreground;
 
