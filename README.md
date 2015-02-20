@@ -2,7 +2,7 @@
 
 Minimum AppGyver client versions required:
 
-* AppGyver Android client >= 4.0.4-edge3
+* AppGyver Android client >= 4.0.5-edge6
 * AppGyver iOS client >= 4.0.0
 * A real device with iOS, recommended also with Android
 
