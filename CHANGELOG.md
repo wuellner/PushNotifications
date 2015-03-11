@@ -1,5 +1,10 @@
 # PushNotification plugin changelog
 
+### 1.1.2 (2015-02-11)
+
+Features:
+- (iOS) Custom payload content is now available under the `custom` key in the notification JSON object.
+
 ### 1.1.1 (2015-01-15)
 
 Features:
