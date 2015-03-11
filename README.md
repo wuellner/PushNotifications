@@ -43,9 +43,13 @@ document.addEventListener("deviceready", function() {
 
 Call this to register the device to receive push notifications.
 
-The callback returns the device token (iOS) / registration id (Android)
+The callback returns the device token (iOS) / registration id (Android).
 
-Those values will typically get posted to your intermediary push server so it knows who it can send notifications to.
+Those values will typically get posted to your intermediary push server so it knows who it can send notifications to. For testing purposes, you can also:
+
+1. Output it via `supersonic.logger.log` to the Steroids Connect screen and copy it from there
+2. Save it to localStorage or output via `console.log`, and fetch it via the Safari debugger
+3. Show it visually and copy it down (e.g. via alert, a bit onerous but doable)
 
 **senderID (Android only)** - The senderID can be defined in the config.android.xml or passed in the API call.
 This is the Google project ID you need to obtain by [registering your application](http://developer.android.com/guide/google/gcm/gs.html) for GCM
