@@ -9,8 +9,6 @@
 #import "AppDelegate+notification.h"
 #import <objc/runtime.h>
 
-static char launchNotificationKey;
-
 @implementation AppDelegate (notification)
 
 // its dangerous to override a method from within a category.
@@ -46,9 +44,8 @@ static char launchNotificationKey;
                                                  [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"]];
             
             [notification setObject:[NSNumber numberWithBool:NO] forKey:@"foreground"];
-            
             [notification setObject:[NSNumber numberWithBool:YES] forKey:@"userAction"];
-            
+
             [[NotificationService instance] receivedNotification:notification];
             
         }
@@ -74,28 +71,28 @@ static char launchNotificationKey;
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    // Get application state for iOS4.x+ devices, otherwise assume active
-    UIApplicationState appState = UIApplicationStateActive;
-    if ([application respondsToSelector:@selector(applicationState)]) {
-        appState = application.applicationState;
-    }
+
+    UIApplicationState appState = application.applicationState;
 
     NSMutableDictionary* notification = [NSMutableDictionary dictionaryWithDictionary:[userInfo objectForKey:@"aps"]];
+    NSMutableDictionary* payload = [NSMutableDictionary dictionaryWithDictionary:[userInfo mutableCopy]];
+    [payload removeObjectForKey:@"aps"];
 
+    [notification setObject: payload forKey:@"custom"];
     [notification setObject:[self getUUID] forKey:@"uuid"];
     [notification setObject:[self getCurrentDate] forKey:@"timestamp"];
 
     if (appState == UIApplicationStateActive) {
         [notification setObject:[NSNumber numberWithBool:YES] forKey:@"foreground"];
     }
-    else{
+    else {
         [notification setObject:[NSNumber numberWithBool:NO] forKey:@"foreground"];
         [notification setObject:[NSNumber numberWithBool:YES] forKey:@"coldstart"];
     }
-    
+
     [[NotificationService instance] receivedNotification:notification];
 
-    if(appState == UIApplicationStateBackground){
+    if (appState == UIApplicationStateBackground) {
         completionHandler(UIBackgroundFetchResultNewData);
     }
 }
