@@ -80,8 +80,7 @@ public class NotificationService {
     }
 
     public boolean isApplicationRunning() {
-        return ((AGCordovaApplicationInterface) mContext.getApplicationContext()).getCurrentActivity()
-                != null;
+        return ((AGCordovaApplicationInterface) mContext.getApplicationContext()).isRunning();
     }
 
     public static NotificationService getInstance(Context context) {
