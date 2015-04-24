@@ -101,13 +101,13 @@ function messageInForegroundHandler (notification) {
 	//handle the contents of the notification
 	console.log(notification.message || notification.alert);
 
-	if ( event.sound ) {
-		var snd = new Media(event.sound);
+	if ( notification.sound ) {
+		var snd = new Media(notification.sound);
 		snd.play();
 	}
 
-	if ( event.badge ) {
-		pushNotification.setApplicationIconBadgeNumber(function(){...}, function(){...}, event.badge);
+	if ( notification.badge ) {
+		pushNotification.setApplicationIconBadgeNumber(function(){...}, function(){...}, notification.badge);
 	}
 }
 
