@@ -144,28 +144,28 @@ public class PushPlugin extends CordovaPlugin {
     return true;
   }
   
-  private boolean hideMessageByJSONSetting(JSONArray array){
+/*  private boolean hideMessageByJSONSetting(JSONArray array){
 	  
-	 // try{
+	  try{
 		  JSONObject object = array.JSONObject(0);
 		  if(object.getJSONObject("data").getBoolean("notification") == false){
 			  return false;
 		  }
-	/*  }catch(Exception e){
+	  }catch(Exception e){
 		  return true;
-	  }*/
+	  }
 	  return true;
-  }
+  }*/
 
-  /*private boolean handleOnMessageBackground(JSONArray data, CallbackContext callbackContext) {
+  private boolean handleOnMessageBackground(JSONArray data, CallbackContext callbackContext) {
     Log.v(TAG, "handleOnMessageBackground() -> data: " + data);
-    if(hideMessageByJSONSetting(array)){
+    //if(hideMessageByJSONSetting(array)){
     	NotificationService
     	.getInstance(getApplicationContext())
     	.addNotificationBackgroundCallBack(this.webView, callbackContext);
-    }
+    //}
     return true;
-  }*/
+  }
 
   @Override
   public void onPause(boolean multitasking) {
