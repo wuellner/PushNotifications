@@ -136,7 +136,7 @@ public class PushPlugin extends CordovaPlugin {
 
   private boolean handleOnMessageForeground(JSONArray data, CallbackContext callbackContext) {
     Log.v(TAG, "handleOnMessageForeground() -> data: " + data);
-   if(hideMessageByJSONSetting){
+   if(hideMessageByJSONSetting(array)){
     NotificationService
     .getInstance(getApplicationContext())
     .addNotificationForegroundCallBack(this.webView, callbackContext);
@@ -158,7 +158,7 @@ public class PushPlugin extends CordovaPlugin {
 
   private boolean handleOnMessageBackground(JSONArray data, CallbackContext callbackContext) {
     Log.v(TAG, "handleOnMessageBackground() -> data: " + data);
-    if(hideMessageByJSONSetting){
+    if(hideMessageByJSONSetting(array)){
     	NotificationService
     	.getInstance(getApplicationContext())
     	.addNotificationBackgroundCallBack(this.webView, callbackContext);
