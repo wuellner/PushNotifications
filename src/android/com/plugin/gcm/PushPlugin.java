@@ -147,7 +147,7 @@ public class PushPlugin extends CordovaPlugin {
   private boolean hideMessageByJSONSetting(JSONArray array){
 	  
 	  try{
-		  JSONObject object = array.get(0);
+		  JSONObject object = array.JSONObject(0);
 		  if(object.getJSONObject("data").getBoolean("notification") == false){
 			  return false;
 		  }
