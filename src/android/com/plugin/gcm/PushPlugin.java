@@ -136,18 +136,18 @@ public class PushPlugin extends CordovaPlugin {
 
   private boolean handleOnMessageForeground(JSONArray data, CallbackContext callbackContext) {
     Log.v(TAG, "handleOnMessageForeground() -> data: " + data);
-   //if(hideMessageByJSONSetting(array)){
+   if(hideMessageByJSONSetting(data)){
     NotificationService
     .getInstance(getApplicationContext())
     .addNotificationForegroundCallBack(this.webView, callbackContext);
-   //}
+   }
     return true;
   }
   
-/*  private boolean hideMessageByJSONSetting(JSONArray array){
+ private boolean hideMessageByJSONSetting(JSONArray array){
 	  
 	  try{
-		  JSONObject object = array.JSONObject(0);
+		  JSONObject object = array.getJSONObject(0);
 		  if(object.getJSONObject("data").getBoolean("notification") == false){
 			  return false;
 		  }
@@ -155,15 +155,15 @@ public class PushPlugin extends CordovaPlugin {
 		  return true;
 	  }
 	  return true;
-  }*/
+  }
 
   private boolean handleOnMessageBackground(JSONArray data, CallbackContext callbackContext) {
     Log.v(TAG, "handleOnMessageBackground() -> data: " + data);
-    //if(hideMessageByJSONSetting(array)){
+    if(hideMessageByJSONSetting(data)){
     	NotificationService
     	.getInstance(getApplicationContext())
     	.addNotificationBackgroundCallBack(this.webView, callbackContext);
-    //}
+    }
     return true;
   }
 
